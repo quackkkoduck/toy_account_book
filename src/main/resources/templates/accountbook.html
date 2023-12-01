@@ -1,0 +1,113 @@
+<!-- src/main/resources/templates/index.html -->
+<!-- src/main/resources/templates/index.html -->
+<!DOCTYPE html>
+
+<style>
+    /* li{
+        list-style: none;
+        border: 1px solid;
+        width: 200px;
+        text-align: center;
+        /* border-TOP: 1px solid; 
+    } */
+    table {
+        width: 400px;
+        padding: left 50px right 50px;
+        ;
+        position: relative;
+        text-align: center;
+    }
+
+    body {
+        position: relative;
+        /* left: 20px; */
+        margin-left: 40%;
+    }
+</style>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Book</title>
+</head>
+
+<body>
+    <h1>Account Book</h1>
+
+    <div class="alert" th:if="${error}" th:text="${error}"></div>
+    <h2>Transactions</h2>
+    <h3></h3>
+
+    <table border="2">
+        <thead>
+            <tr>
+                <th>Title</th> <!--제목 -->
+                <th>Balance</th>
+                <th>Date</th>
+                <th>type</th>
+                <th>recentmoney(원)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="transaction : ${transactions}">
+                <td th:text="${transaction.title}"></td>
+                <td th:text="${transaction.balance}"></td>
+                <td th:text="${transaction.date}"></td>
+                <td th:text="${transaction.transactionType}"></td>
+                <td th:text="${transaction.recentmoney}"></td>
+            
+            </tr>
+        </tbody>
+    </table>
+
+
+    <h2>New Transaction</h2>
+    <form action="/accountbook/detail" method="post">
+
+
+        <label for="date">when:</label>
+        <input type="date" id="date" name="date" placeholder="언제..?" required>
+        <br>
+        <label for="title">왜 안사유..:</label>
+        <input type="text" id="title" name="title" placeholder="뭘또사유!" required>
+        <br>
+        <label for="balance">입/출금:</label>
+        <input type="text" id="balance" placeholder="금액" name="balance" required oninput="validateNumberInput(this)">
+        <span id="errorMessage" style="color: red;"></span>
+
+        <select id="transactionType" name="transactionType">
+            <option value="입금" name="deposit">입금</option>
+            <option value="출금" name="withdraw">출금</option>
+
+        </select>
+        <button type="submit">Submit</button>
+    </form>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var error = document.querySelector('.alert').innerHTML.trim();
+            if (error) {
+                alert(error);
+                // 또는 원하는 형태로 에러 메시지를 표시할 수 있습니다.
+                // 예: alert(error); 또는 화면에 특정 위치에 동적으로 메시지를 표시하는 등
+            }
+        });
+
+        function validateNumberInput(input) {
+            var inputValue = input.value;
+            var errorMessage = document.getElementById('errorMessage');
+
+            // 정규식을 사용하여 숫자 외의 문자가 포함되어 있는지 검사
+            if (/[^0-9]/.test(inputValue)) {
+                errorMessage.textContent = '숫자만 입력하세요.';
+                input.setCustomValidity('숫자만 입력하세요.');
+            } else {
+                errorMessage.textContent = '';
+                input.setCustomValidity('');
+            }
+        }
+    </script>
+</body>
+
+</html>

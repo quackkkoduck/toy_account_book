@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>mymy</title>
+        <link rel="stylesheet" th:href="@{/cssjs/signup.css}">
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    </head>
+
+            <div class="barright">
+                <div class="join">
+                    <button th:if="${email == null}">회원가입</button>
+                </div>
+                <div class="login" id="login-logout">
+                    <button id="login-button" th:if="${email == null}" onclick="loginOrLogin()">로그인</button>
+
+                    <button id="login-button" th:if="${email != null}" onclick="loginOrLogout()">로그아웃</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="signupcontainer">
+        <div class="signup-head">
+            <h2>회원가입</h2>
+            <!-- <img class="logo" src="./images/images2/logo-naver.png"> -->
+            <a href="/">
+                <button type="button" class="btn-h" id="homeButton">🏠</button>
+            </a>
+            <div>
+            </div>
+        </div>
+        <form id="signupForm" action="/signup" method="post">
+            <!-- 초기에는 Email 입력 필드와 "인증코드" 입력 필드를 숨김 -->
+
+            <h1>
+            <label for="email" id="emailLabel">Email:</label>
+            <input type="text" class="email" name="email" id="email" placeholder="이메일을 입력해주세요"
+                onkeyup="validateEmail()">
+            <div class="ebox">
+                <div id="email-error" class="error-message"></div>
+                <div id="email-success" class="success-message"></div>
+            </div>
+
+            <button type="button" class="btn-e" id="emailcheckButton" onclick="emailcheck()">인증코드 전송</button>
+            <div id="result2"></div>
+            <label for="echeck" id="echeckLabel">인증코드:</label>
+            <input type="text" id="echeck" name="echeck" onkeyup="validateEcheck()" style="display: none;">
+            <div id="echeck-error" class="error-message"></div>
+            <div id="echeck-success" class="success-message"></div>
+
+
+            <label for="pw" class="pwbox">Password:</label>
+            <input type="password" class="pw" name="pw" required title="비밀번호를 입력해주세요" onkeyup="validatePw()"
+                placeholder="비밀번호를 입력해 주세요">
+            <div id="pw-error" class="error-message"></div>
+            <div id="pw-success" class="success-message"></div>
+            <label for="confirmPw" class="confirmPw">비밀번호 확인:</label>
+        <input type="password" class="pw" name="confirmPw" id="confirmPw" onkeyup="validateConfirmPw()" required>
+        <div id="confirmPw-error" class="error-message"></div>
+
+            <label for="name" class="namebox">Name:</label>
+            <input type="text" class="name" name="name" id="name" placeholder="이름을 입력해주세요">
+            <div></div>
+            <label for="phone" class="phonebox">Phone Number:</label>
+            <input type="text" class="phone" name="phone" id="phone" placeholder="핸드폰 번호를 입력해주세요"
+                oninput="this.value = this.value.replace(/[^0-9]/g, ''); validatePhone();" maxlength="11">
+            <div id="phone-error" class="error-message"></div>
+
+            <ul> 
+                <li><span id="bdbox">
+                Birthday: 
+                </span></li>
+                    
+            <li class="birthdetail">
+                <label for="birth" class="birthbox">
+                <input type="text" class="birth" name="yy" placeholder="yy"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateBirth();" maxlength="4">
+                <!-- <br> -->
+                <input type="text" class="birth" name="mm" placeholder="mm"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, ''); updateBirth();" maxlength="2"
+                    onblur="validateMonth(this);">
+                <!-- <br> -->
+                <input type="text" class="birth" name="dd" placeholder="dd"
+                    oninput="this.value = this.value.replace(/[^0-9]/g, '');validateDay(this, event); updateBirth();"
+                    maxlength="2" onblur="validateDay(this);">
+            </li>
+
+        </label>
+        </ul>
+            <li>
+                <h1 id="birth" name="birth">생년월일: </h1>
+            </li>
+
+            <button type="button" class="btn" id="signupButton" disabled>Sign Up</button>
+            <div id="result"></div>
+            <input type="hidden" value=0 id="securitycode">
+        </h1>
+        </form>
+    </div>
+
+
+
+    <script>
+        
+        const securitycode = document.getElementById("securitycode");
+        async function emailcheck() {
+            document.getElementById("emailLabel").style.display = "block";
+            document.getElementById("email").style.display = "block";
+            document.getElementById("email-error").style.display = "block";
+            document.getElementById("email-success").style.display = "block";
+            document.getElementById("echeckLabel").style.display = "block";
+            document.getElementById("echeck").style.display = "block";
+            document.getElementById("echeck-error").style.display = "block";
+            document.getElementById("echeck-success").style.display = "block";
+
+
+            const toEmail = document.querySelector('#email');
+            const echeck = document.querySelector('#echeck');
+            const emailSuccessMessage = document.getElementById('email-success');
+            const data = { email: toEmail.value }; // POST 요청으로 보낼 데이터
+            console.log(echeck.value);
+            console.log(toEmail.value);
+            try {
+                const response = await fetch('/emailcheck', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data), // 데이터를 JSON 문자열로 변환
+                });
+
+                if (response.ok) {
+                    // 서버 응답이 성공적인 경우의 처리
+                    const result2 = await response.text(); // 서버로부터의 응답을 텍스트로 읽음
+                    // console.log('서버 응답:', result2);
+                    // 이제 result에 서버로부터의 응답 데이터가 있습니다.
+
+                    console.log(result2);
+
+                    document.getElementById("result2").innerHTML = "전송됨";
+                    securitycode.value = result2;
+                    // securitycode+=result;
+                    // Update the error/success message
+                    const echeckError = document.getElementById("echeck-error");
+                    const echeckSuccess = document.getElementById("echeck-success");
+
+
+                    updateSubmitButton();
+
+
+
+                } else {
+                    // 서버 응답이 오류인 경우의 처리
+                    console.error('서버 응답이 오류 상태입니다.');
+                }
+            } catch (error) {
+                // 네트워크 오류나 다른 예외 처리
+                console.error('오류 발생:', error);
+            }
+        }
+
+
+        const emailElement = document.querySelector('#email');
+        emailElement.addEventListener('focusout', checkEmailAvailability);
+
+        async function checkEmailAvailability() {
+            const email = document.querySelector("[name=email]").value;
+            var emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+            if (!emailPattern.test(email)) {
+                document.getElementById("email-error").textContent = "올바른 email 형식이 아닙니다.";
+                document.getElementById("email-success").textContent = '';
+                document.getElementById("emailcheckButton").disabled = true;
+            } else {
+                const response = await fetch(`/checkEmailAvailability?email=${email}`);
+                const result = await response.text();
+                if (result === "가입불가") {
+                    document.getElementById("email-error").textContent = "중복된 이메일 주소입니다.";
+                    document.getElementById("email-success").textContent = '';
+                    document.getElementById("emailcheckButton").disabled = true;
+                } else {
+                    document.getElementById("email-error").textContent = "";
+                    document.getElementById("email-success").textContent = '사용 가능합니다.';
+                    document.getElementById("emailcheckButton").disabled = false;
+                }
+                console.log(textContent);
+                updateSubmitButton();
+            }
+        }
+
+        async function validateEcheck() {
+            const check = document.querySelector("[name=echeck]").value;
+            const echeck = document.querySelector("#echeck");
+
+            if (echeck.style.display !== 'none' && echeck.value === securitycode.value) {
+                document.getElementById("echeck-error").textContent = "";
+                document.getElementById("echeck-success").textContent = "확인되었습니다.";
+            } else {
+                document.getElementById("echeck-error").textContent = "인증 번호를 다시 확인해 주세요.";
+                document.getElementById("echeck-success").textContent = "";
+            }
+
+            updateSubmitButton();
+        }
+        
+
+        async function validatePw() {
+            const pw = document.querySelector("[name=pw]").value;
+            var pwPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            if (!pwPattern.test(pw)) {
+                document.getElementById("pw-error").textContent = "비밀번호는 영문, 숫자, 특수문자를 모두 포함하고 8자리 이상이어야 합니다.";
+                document.getElementById("pw-success").textContent = "";
+            } else {
+                document.getElementById("pw-error").textContent = "";
+                document.getElementById("pw-success").textContent = '사용 가능합니다.';
+            }
+
+            updateSubmitButton();
+        }
+
+        function validatePhone() {
+            const phone = document.querySelector("[name=phone]").value;
+
+            if (phone.length !== 11) {
+                document.getElementById("phone-error").textContent = "핸드폰 번호는 11자리여야 합니다.";
+            } else {
+                document.getElementById("phone-error").textContent = "";
+            }
+
+            updateSubmitButton();
+        }
+
+        function validateMonth(monthField, event) {
+            var value = monthField.value.trim();
+            var numericValue = parseInt(value);
+
+            if (value === '' || (numericValue >= 1 && numericValue <= 12)) {
+                // 입력값이 비어 있거나 지정된 범위 내에 있을 때는 아무런 작업을 수행하지 않음
+                return;
+            }
+
+            // 입력값이 빈 칸이 아니고 1부터 12 범위를 벗어날 때만 알림창을 표시
+            alert("월은 1부터 12까지의 숫자만 입력할 수 있습니다.");
+            monthField.value = "";
+
+            if (event) event.stopPropagation();
+            updateSubmitButton();
+        }
+
+        function validateDay(dayField, event) {
+            var value = dayField.value.trim();
+            var numericValue = parseInt(value);
+
+            if (value === '' ||  numericValue >= 0 && numericValue <= 31) {
+                // 값이 비어있지 않고 지정된 범위 내에 있을 때는 아무것도 하지 않음
+                return;
+            }
+
+            // 입력값이 비어 있거나 범위를 벗어날 때만 알림창 띄우기
+            alert("일은 1부터 31까지의 숫자만 입력할 수 있습니다.");
+            dayField.value = "";
+
+            if (event) event.stopPropagation();
+            updateSubmitButton();
+        }
+
+        function updateBirth() {
+            const yy = document.querySelector("[name=yy]").value;
+            const mm = document.querySelector("[name=mm]").value;
+            const dd = document.querySelector("[name=dd]").value;
+            const birth = `${yy}-${mm}-${dd}`;
+
+            // "h1" 태그에 날짜 정보 추가
+            document.getElementById("birth").textContent = `생년월일: ${birth}`;
+            updateSubmitButton();
+
+        }
+
+        //         function emailcheck() {
+        //     const emailError = document.getElementById("email-error").textContent;
+        //     const emailCheckButton = document.getElementById("emailcheckButton");
+
+        //     if (emailError === '사용 가능합니다.') {
+        //         emailCheckButton.disabled = false;
+        //     } else {
+        //         emailCheckButton.disabled = true;
+        //     }
+        // }
+
+        function updateSubmitButton() {
+            const echeckError = document.getElementById("echeck-error").textContent;
+            const emailError = document.getElementById("email-error").textContent;
+            const pwError = document.getElementById("pw-error").textContent;
+            const phoneError = document.getElementById("phone-error").textContent;
+            const datacheck = document.getElementById("echeck-success").textContent;
+
+            if (emailError === "" && pwError === "" && phoneError === "" && echeckError === "") {
+                // 모든 유효성 검사를 통과하고 이메일 확인이 "확인되었습니다"일 때 가입 버튼 활성화
+                if (datacheck === "확인되었습니다.") {
+                    document.getElementById("signupButton").disabled = false;
+                } else {
+                    document.getElementById("signupButton").disabled = true;
+                }
+            } else {
+                // 하나라도 유효성 검사에 실패하거나 이메일 확인이 "다시 확인해주세요"일 때 가입 버튼 비활성화
+                document.getElementById("signupButton").disabled = true;
+            }
+        }
+
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const loginButton = document.getElementById('login-button'); // 로그인 버튼
+    const email ="${email}"
+    if (email) {
+        // 사용자가 로그인 상태일 때
+        loginButton.textContent = '로그아웃';
+        loginButton.addEventListener('click', function () {
+            // 로그아웃 로직을 수행할 함수를 호출 (loginOrLogout 함수와 같은 역할)
+            logout();
+        });
+    } else {
+        // 사용자가 로그아웃 상태일 때
+        loginButton.textContent = '로그인';
+        loginButton.addEventListener('click', function () {
+            // 로그인 로직을 수행할 함수를 호출 (loginOrLogin 함수와 같은 역할)
+            login();
+        });}
+
+            // Sign Up 버튼을 클릭할 때 비동기 통신을 시작합니다.
+            var signupButton = document.getElementById("signupButton");
+            signupButton.addEventListener("click", function () {
+                var xhr = new XMLHttpRequest();
+                var form = document.getElementById("signupForm");
+                var formData = {
+                    email: form["email"].value,
+                    name: form["name"].value,
+                    pw: form["pw"].value,
+
+                    phone: form["phone"].value,
+                    yy: form["yy"].value,
+                    dd: form["dd"].value,
+                    mm: form["mm"].value
+
+
+
+                }
+
+                console.log(formData);
+                xhr.open("POST", "/signup", true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            var response = xhr.responseText;
+                            var result = document.getElementById("result");
+                            result.innerHTML = "가입이 완료되었습니다.";
+
+                        } else {
+                            console.error("오류 발생:", xhr.statusText);
+                        }
+                    }
+                };
+
+                xhr.send(JSON.stringify(formData));
+            });
+        });
+    </script>
+</body>
+
+</html>
