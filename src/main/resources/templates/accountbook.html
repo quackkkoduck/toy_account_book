@@ -11,17 +11,42 @@
         /* border-TOP: 1px solid; 
     } */
     table {
-        width: 400px;
+        width: 600px;
         padding: left 50px right 50px;
-        ;
+        font-size: 15px;
         position: relative;
         text-align: center;
+        border-radius: 2px;
+        border: hidden;
+    }
+    th {
+        border-radius: 20px;
+        border-top: hidden;
+        background-color: bisque;
     }
 
+    td {
+        border: solid 1px;
+        padding-top:5px ;
+        padding-bottom:5px ;
+        border-left: hidden;
+        border-top: hidden;
+        border-right: hidden;
+    }
+    td:nth-child(2), td:nth-child(3), td:nth-child(4), td:nth-child(5){
+        border-left:1px solid ;
+    }
+    td:nth-last-child(1){
+        /* border-bottom:hidden ; */
+    }
     body {
         position: relative;
-        /* left: 20px; */
-        margin-left: 40%;
+        left: 20px;
+        margin-left: 30%;
+        -ms-overflow-style: none;
+    }
+    ::-webkit-scrollbar {
+        display: none;
     }
 </style>
 
@@ -39,7 +64,7 @@
     <div class="alert" th:if="${error}" th:text="${error}"></div>
     <h2>Transactions</h2>
     <h3></h3>
-
+    
     <table border="2">
         <thead>
             <tr>
