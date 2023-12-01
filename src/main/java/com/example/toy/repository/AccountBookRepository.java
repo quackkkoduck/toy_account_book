@@ -1,6 +1,7 @@
 package com.example.toy.repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,7 @@ import com.example.toy.model.AccountBook;
 public interface AccountBookRepository extends JpaRepository<AccountBook, Long> {
 
     List<AccountBook> findAllByOrderByTransactionTimeDesc();
+
+    List<AccountBook> findAllByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
 }

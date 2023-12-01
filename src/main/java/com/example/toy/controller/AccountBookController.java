@@ -29,6 +29,8 @@ public class AccountBookController {
     @GetMapping
     public String index(Model model) {
         model.addAttribute("transactions", accountBookRepository.findAll());
+
+        
         return "accountbook"; // HTML 파일의 이름을 "accountbook"으로 변경
     }
 
@@ -51,6 +53,7 @@ public class AccountBookController {
 
     AccountBook transaction = new AccountBook();
 
+    
     int recentMoney;
     
     if("출금".equals(accountBook.getTransactionType())){
