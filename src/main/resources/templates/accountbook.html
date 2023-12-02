@@ -19,6 +19,7 @@
         border-radius: 2px;
         border: hidden;
     }
+
     th {
         border-radius: 20px;
         border-top: hidden;
@@ -27,24 +28,31 @@
 
     td {
         border: solid 1px;
-        padding-top:5px ;
-        padding-bottom:5px ;
+        padding-top: 5px;
+        padding-bottom: 5px;
         border-left: hidden;
         border-top: hidden;
         border-right: hidden;
     }
-    td:nth-child(2), td:nth-child(3), td:nth-child(4), td:nth-child(5){
-        border-left:1px solid ;
+
+    td:nth-child(2),
+    td:nth-child(3),
+    td:nth-child(4),
+    td:nth-child(5) {
+        border-left: 1px solid;
     }
-    td:nth-last-child(1){
+
+    td:nth-last-child(1) {
         /* border-bottom:hidden ; */
     }
+
     body {
         position: relative;
         left: 20px;
         margin-left: 30%;
         -ms-overflow-style: none;
     }
+
     ::-webkit-scrollbar {
         display: none;
     }
@@ -62,8 +70,36 @@
     <h1>Account Book</h1>
 
     <div class="alert" th:if="${error}" th:text="${error}"></div>
-    <h2>Transactions</h2>
-    <h3></h3>
+    <div>Transactions
+        <form action="/accountbook/filtered" method="get">
+            <label for="startDate">Start Date:</label>
+            <input type="date" id="startDate" name="startDate" required>
+            <br>
+            <label for="endDate">End Date:</label>
+            <input type="date" id="endDate" name="endDate" required>
+            <br>
+            <button type="submit">Filter</button>
+        </form>
+
+        <!-- <h3>
+            <select id="dayField" name="dayField">
+                <option value="Jan" name="Jan">1월</option>	
+                <option value="Feb" name="Feb">2월</option>
+                <option value="Mar" name="Mar">3월</option>
+                <option value="Apr" name="Apr">4월</option>
+                <option value="May" name="May">5월</option>
+                <option value="Jun" name="Jun">6월</option>
+                <option value="Jul" name="Jul">7월</option>
+                <option value="Aug" name="Aug">8월</option>
+                <option value="Sep" name="Sep">9월</option>
+                <option value="Oct" name="Oct">10월</option>
+                <option value="Nov" name="Nov">11월</option>
+                <option value="Dec" name="Dec">12월</option>
+
+            </select>
+        </h3> -->
+    </div>
+
     <table border="2">
         <thead>
             <tr>
@@ -78,6 +114,7 @@
             <tr th:each="transaction : ${transactions}">
                 <td th:text="${transaction.title}"></td>
                 <td th:text="${transaction.balance}"></td>
+                <!-- <td th:text="${#dates.format(transaction.date, 'yyyy-MM-dd')}"></td> -->
                 <td th:text="${transaction.date}"></td>
                 <td th:text="${transaction.transactionType}"></td>
                 <td th:text="${transaction.recentmoney}"></td>
