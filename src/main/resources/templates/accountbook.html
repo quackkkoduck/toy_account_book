@@ -71,7 +71,7 @@
 
     <div class="alert" th:if="${error}" th:text="${error}"></div>
     <div>Transactions
-        <form action="/accountbook/filtered" method="get">
+        <!-- <form action="/accountbook/filtered" method="get">
             <label for="startDate">Start Date:</label>
             <input type="date" id="startDate" name="startDate" required>
             <br>
@@ -79,27 +79,39 @@
             <input type="date" id="endDate" name="endDate" required>
             <br>
             <button type="submit">Filter</button>
-        </form>
+        </form> -->
 
-        <!-- <h3>
-            <select id="dayField" name="dayField">
-                <option value="Jan" name="Jan">1월</option>	
-                <option value="Feb" name="Feb">2월</option>
-                <option value="Mar" name="Mar">3월</option>
-                <option value="Apr" name="Apr">4월</option>
-                <option value="May" name="May">5월</option>
-                <option value="Jun" name="Jun">6월</option>
-                <option value="Jul" name="Jul">7월</option>
-                <option value="Aug" name="Aug">8월</option>
-                <option value="Sep" name="Sep">9월</option>
-                <option value="Oct" name="Oct">10월</option>
-                <option value="Nov" name="Nov">11월</option>
-                <option value="Dec" name="Dec">12월</option>
-
+        <form action="/accountbook/filtered" method="get">
+            <select name="yearField" id="yearField">
+                <option value="2022" name="2022">2022년</option>
+                <option value="2023" name="2023">2023년</option>
+                <option value="2024" name="2024">2024년</option>
             </select>
-        </h3> -->
-    </div>
 
+            <h3>
+                <select id="monthField" name="monthField">
+                    <option value="1" name="Jan">1월</option>
+                    <option value="2" name="Feb">2월</option>
+                    <option value="3" name="Mar">3월</option>
+                    <option value="4" name="Apr">4월</option>
+                    <option value="5" name="May">5월</option>
+                    <option value="6" name="Jun">6월</option>
+                    <option value="7" name="Jul">7월</option>
+                    <option value="8" name="Aug">8월</option>
+                    <option value="9" name="Sep">9월</option>
+                    <option value="10" name="Oct">10월</option>
+                    <option value="11" name="Nov">11월</option>
+                    <option value="12" name="Dec">12월</option>
+                </select>
+            </h3>
+            <input type="submit" value="조회"></input>
+        </form>
+    </div>
+    <div>
+        <form action="/accountbook/all" method="get">
+            <button type="submit">전체 조회</button>
+        </form>
+    </div>
     <table border="2">
         <thead>
             <tr>
@@ -108,17 +120,35 @@
                 <th>Date</th>
                 <th>type</th>
                 <th>recentmoney(원)</th>
+                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
-            <tr th:each="transaction : ${transactions}">
-                <td th:text="${transaction.title}"></td>
+            <div  th:each="transaction : ${transactions}">
+            <tr>
+                <td th:text="${transaction.title}" class="title"></td>
                 <td th:text="${transaction.balance}"></td>
                 <!-- <td th:text="${#dates.format(transaction.date, 'yyyy-MM-dd')}"></td> -->
-                <td th:text="${transaction.date}"></td>
+                <td th:text="${transaction.date}" class="oDate"></td>
                 <td th:text="${transaction.transactionType}"></td>
                 <td th:text="${transaction.recentmoney}"></td>
+                <td>
+                    <a th:href="@{/accountbook/edit/{id}(id=${transaction.id})}">Edit</a>
+                    <a th:href="@{/accountbook/delete/{id}(id=${transaction.id})}">Delete</a>
+                </td>
             </tr>
+            <tr>
+                <td><input type="text" id="title" name="title" placeholder="뭘또사유!" class="m-title"></td>
+                <td><input type="text" id="balance" placeholder="금액" name="balance" required oninput="validateNumberInput(this)"></td>
+                <td><input type="date" id="date" name="date" placeholder="언제..?" class="m-date"></td>
+                <td><select id="transactionType" name="transactionType">
+                    <option value="입금" name="deposit">입금</option>
+                    <option value="출금" name="withdraw">출금</option>
+                </select></td>
+                <td><input type="text" id="editmoney" name="editmoney" placeholder="또잉?" required></td>
+                <td><input type="button" value="완료"><input type="button" value="취소"></td>
+            </tr>
+        </div>
         </tbody>
     </table>
 
@@ -152,8 +182,33 @@
                 // 또는 원하는 형태로 에러 메시지를 표시할 수 있습니다.
                 // 예: alert(error); 또는 화면에 특정 위치에 동적으로 메시지를 표시하는 등
             }
-        });
 
+            // 폼이 로드될 때 저장된 데이터가 있는지 확인
+            var formData = JSON.parse(localStorage.getItem('formData')) || {};
+            var form = document.getElementById('transactionForm');
+
+            // 저장된 데이터가 있으면 각 입력 필드에 값을 설정
+            if (formData) {
+                Object.keys(formData).forEach(function (key) {
+                    var input = form.elements[key];
+                    if (input) {
+                        input.value = formData[key];
+                    }
+                });
+            }
+
+            form.addEventListener('submit', function () {
+                // 폼이 제출될 때 현재 입력된 데이터를 저장
+                var formData = {};
+                for (var i = 0; i < form.elements.length; i++) {
+                    var input = form.elements[i];
+                    if (input.type !== 'submit') {
+                        formData[input.name] = input.value;
+                    }
+                }
+                localStorage.setItem('formData', JSON.stringify(formData));
+            });
+        });
         function validateNumberInput(input) {
             var inputValue = input.value;
             var errorMessage = document.getElementById('errorMessage');
@@ -167,6 +222,20 @@
                 input.setCustomValidity('');
             }
         }
+
+
+
+        const oTitle= document.querySelectorAll('.title')
+        const mTitle= document.querySelectorAll('.m-title')
+        const mDate = document.querySelectorAll('.m-date')
+        const oDate = document.querySelectorAll('.oDate')
+
+    for (let i=0; i<oTitle.length;i++){
+        mTitle[i].value= oTitle[i].textContent
+        mDate[i].value = oDate[i].textContent
+    }
+        
+
     </script>
 </body>
 

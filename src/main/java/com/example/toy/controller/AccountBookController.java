@@ -1,10 +1,12 @@
 package com.example.toy.controller;
 
 import java.math.BigDecimal;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 // import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -116,20 +119,68 @@ public class AccountBookController {
 
     @GetMapping("/filtered")
 public String filteredTransactions(
-        @RequestParam(name = "startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-        @RequestParam(name = "endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        Model model
-) {
-    LocalDateTime startDateTime = startDate.atStartOfDay();
-    LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
+        @RequestParam(name = "yearField") String year,
+        @RequestParam(name = "monthField") String month,
+        Model model) {
+    // year와 month를 이용하여 해당 연도와 월에 해당하는 데이터를 조회
+    //List<AccountBook> filteredTransactions = accountBookRepository.findByYearAndMonth(year, month);
+String day = year+"-"+month;
+   System.out.println(day);
+List<AccountBook> adf = accountBookRepository.findByDateSubstring(day);
+        System.out.println(adf);
+    // Model에 데이터 추가
+   model.addAttribute("transactions", adf);
 
-    // 필터링된 내역 가져오기
-    List<AccountBook> filteredTransactions = accountBookRepository.findByDateBetweenOrderByTransactionTimeDesc(startDateTime, endDateTime);
-
-    // Model에 추가
-    model.addAttribute("transactions", filteredTransactions);
-
-    // accountbook.html로 이동
+    // 원하는 뷰로 리턴
     return "accountbook";
 }
+
+@GetMapping("/all")
+public String showAllTransactions(Model model) {
+    List<AccountBook> allTransactions = accountBookRepository.findAll();
+    model.addAttribute("transactions", allTransactions);
+    return "accountbook";
+}
+
+@GetMapping("/accountbook/edit/{id}")
+public String showEditTransactionForm(@PathVariable Long id, Model model) {
+    System.out.println("showEditTransactionForm method called with id: " + id);
+    AccountBook transaction = accountBookRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid transaction ID: " + id));
+
+    model.addAttribute("transaction", transaction);
+    return "edit";
+}
+
+@PostMapping("/accountbook/edit/{id}")
+public String editTransaction(@PathVariable Long id, @ModelAttribute AccountBook updatedTransaction) {
+    System.out.println("editTransaction method called with id: " + id);
+    AccountBook transaction = accountBookRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid transaction ID: " + id));
+
+    transaction.setDate(updatedTransaction.getDate());
+    transaction.setTitle(updatedTransaction.getTitle());
+    transaction.setBalance(updatedTransaction.getBalance());
+    transaction.setTransactionType(updatedTransaction.getTransactionType());
+
+    accountBookRepository.save(transaction);
+
+    return "redirect:/accountbook";
+}
+
+    @GetMapping("/accountbook/delete/{id}")
+    public String deleteTransaction(@PathVariable Long id) {
+        accountBookRepository.deleteById(id);
+        return "redirect:/accountbook";
+    }
+
+    
+//         System.out.println(
+//             "@@@@@@@@@"
+//         );
+
+//     return null;
+// }
+
+
 }

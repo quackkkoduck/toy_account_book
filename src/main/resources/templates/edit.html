@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Transaction</title>
+</head>
+<body>
+    <h2>Edit Transaction</h2>
+    <form action="/accountbook/edit/{id}" method="post">
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" th:value="${transaction.date}" required>
+        <br>
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" th:value="${transaction.title}" required>
+        <br>
+        <label for="balance">Balance:</label>
+        <input type="text" id="balance" name="balance" th:value="${transaction.balance}" required>
+        <br>
+        <label for="transactionType">Type:</label>
+        <select id="transactionType" name="transactionType" th:value="${transaction.transactionType}">
+            <option value="입금" name="deposit">Deposit</option>
+            <option value="출금" name="withdraw">Withdraw</option>
+        </select>
+        <br>
+        <button type="submit">Save Changes</button>
+    </form>
+</body>
+</html>
